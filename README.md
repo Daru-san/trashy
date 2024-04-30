@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/oberblastmeister/trash-cli/workflows/ci/badge.svg)
 
-*trashy* is a simple, fast, and featureful alternative to *rm* and *trash-cli* written in rust.
+_trashy_ is a simple, fast, and featureful alternative to _rm_ and _trash-cli_ written in rust.
 
 Quick links:
 
@@ -18,8 +18,8 @@ Quick links:
 - easy to use, just run `trashy put PATH`
 - recursive by default, without having the issues
 - beautiful output
-    - colorized paths (similar to *fd*)
-    - cool tables
+  - colorized paths (similar to _fd_)
+  - cool tables
 - very fast, and faster than trash-cli (see [benchmarks](#benchmarks))
 - much safer than `rm -rf`
 - intuitive syntax and fine grained control
@@ -30,28 +30,29 @@ Quick links:
 ### Trash a path
 
 ```bash
-$ trashy first second third
+trashy first second third
 ```
 
-This is just sugar for 
+This is just sugar for
 
 ```bash
-$ trashy put first second third
+trashy put first second third
 ```
 
 ### List items in the trash
 
 ```bash
-$ trashy list
+trashy list
 ```
 
 ### Restore or empty some files
 
 ```bash
-$ trashy restore first second
+trashy restore first second
 ```
+
 ```bash
-$ trashy empty first second third
+trashy empty first second third
 ```
 
 The `restore` and `empty` subcommands both take very similar arguments and flags.
@@ -59,15 +60,14 @@ The `restore` and `empty` subcommands both take very similar arguments and flags
 By default the arguments for `restore` and `empty` are interpreted as regular expressions.
 Use the `-m` option to interpret them differently.
 
-
 ### Restore or empty all files
 
 ```bash
-$ trashy restore --all
+trashy restore --all
 ```
 
 ```bash
-$ trashy empty --all
+trashy empty --all
 ```
 
 ## Integrations
@@ -112,10 +112,37 @@ paru -S trashy
 nix-env -i trashy
 ```
 
-Or if you have flakes enabled:
+#### With flakes
 
-```bash
-nix profile install nixpkgs#trashy
+In flake.nix
+
+```nix
+# Add this to your flake inputs
+{
+  ...
+  inputs = {
+    trashy.url = "github:Daru-san/trashy";
+  };
+  ...
+}
+```
+
+In configuration.nix
+
+```nix
+# configuration.nix
+{pkgs,inputs,...}:{
+  environment.systemPackages = [inputs.trashy.packages.${pkgs.system}.default];
+}
+```
+
+In home.nix
+
+```nix
+# home.nix
+{pkgs,inputs,...}:{
+  home.packages = [inputs.trashy.packages.${pkgs.system}.default];
+}
 ```
 
 ## Benchmarks
@@ -156,7 +183,6 @@ Time (mean ± σ):     383.7 ms ±  10.5 ms    [User: 321.8 ms, System: 59.4 ms]
 Range (min … max):   375.9 ms … 412.0 ms    10 runs
 ```
 
-
 ```
 hyperfine 'trashy list'
 ```
@@ -182,6 +208,6 @@ You should not. The alias will not be present on other systems and habits are re
 
 Copyright (c) 2020 Brian Shu
 
-*trashy* is distributed under the terms of both the MIT license and the Apache License 2.0.
+_trashy_ is distributed under the terms of both the MIT license and the Apache License 2.0.
 
 See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT)
