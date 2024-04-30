@@ -1,28 +1,49 @@
 {
-  description =
-    "Simple, fast, and featureful alternative to rm and trash-cli written in rust.";
+  description = "Simple, fast, and featureful alternative to rm and trash-cli written in rust.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     naersk = {
       url = "github:nix-community/naersk/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = { self, nixpkgs, flake-utils, naersk }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-        naersk-lib = pkgs.callPackage naersk { };
+  outputs = {
+    flake-parts,
+    naersk,
+    self,
+    ...
+  } @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: let
+        naersk-lib = pkgs.callPackage naersk {};
       in {
-        defaultPackage = naersk-lib.buildPackage ./.;
-        devShell = with pkgs;
-          mkShell {
-            buildInputs =
-              [ cargo rustc rustfmt pre-commit rustPackages.clippy ];
-            RUST_SRC_PATH = rustPlatform.rustLibSrc;
-          };
-      });
+        packages = {
+          trashy = naersk-lib.buildPackage ./.;
+          default = self.packages.${system}.trashy;
+        };
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            cargo
+            rustc
+            rustfmt
+            pre-commit
+            rustPackages.clippy
+          ];
+          RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+        };
+      };
+    };
 }
