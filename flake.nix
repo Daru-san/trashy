@@ -17,6 +17,7 @@
     ...
   } @ inputs:
     flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [flake-parts.flakeModules.easyOverlay];
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -26,6 +27,7 @@
       perSystem = {
         pkgs,
         system,
+        config,
         ...
       }: let
         naersk-lib = pkgs.callPackage naersk {};
@@ -33,6 +35,9 @@
         packages = {
           trashy = naersk-lib.buildPackage ./.;
           default = self.packages.${system}.trashy;
+        };
+        overlayAttrs = {
+          inherit (config.packages) trashy;
         };
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
